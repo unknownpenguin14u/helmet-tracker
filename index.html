@@ -341,7 +341,8 @@
         function initMap() {
             map = L.map('map', {
                 center: [0, 0],
-                zoom: 13,
+                zoom: 18,                 // <-- changed from 13 to 18 (20m view)
+                maxZoom: 20,               // <-- limit maximum zoom
                 zoomControl: true,
                 attributionControl: true,
             });
@@ -473,7 +474,8 @@
             if (data.valid && data.lat !== 0 && data.lng !== 0) {
                 const latlng = [data.lat, data.lng];
                 marker.setLatLng(latlng);
-                map.setView(latlng, map.getZoom());
+                // Force zoom to 18 for a close-up view
+                map.setView(latlng, 18);    // <-- changed to 18
                 pathPoints.push(latlng);
                 if (pathPoints.length > 150) pathPoints.shift();
                 pathPolyline.setLatLngs(pathPoints);
