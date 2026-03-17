@@ -9,7 +9,7 @@
     <!-- Font Awesome 6 (free) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (Keep your existing CSS – unchanged) */
+        /* (your existing CSS – unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -325,8 +325,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ==================== CONFIGURATION ====================
-        // Replace with your ESP32's public URL or local IP
-        const API_BASE = "http://192.168.0.104"; // or "http://192.168.0.104"
+        // Replace with your ESP32's local IP
+        const API_BASE = "http://192.168.0.104";
 
         // ==================== GLOBALS ====================
         let map, marker, pathPolyline;
@@ -341,8 +341,8 @@
         function initMap() {
             map = L.map('map', {
                 center: [0, 0],
-                zoom: 18,                 // <-- changed from 13 to 18 (20m view)
-                maxZoom: 20,               // <-- limit maximum zoom
+                zoom: 20,                 // <-- set to 20 for a very close view (approx 20m)
+                maxZoom: 20,               // <-- limit maximum zoom to 20
                 zoomControl: true,
                 attributionControl: true,
             });
@@ -474,8 +474,8 @@
             if (data.valid && data.lat !== 0 && data.lng !== 0) {
                 const latlng = [data.lat, data.lng];
                 marker.setLatLng(latlng);
-                // Force zoom to 18 for a close-up view
-                map.setView(latlng, 18);    // <-- changed to 18
+                // Force zoom to 20 for a very close view
+                map.setView(latlng, 20);    // <-- set to 20
                 pathPoints.push(latlng);
                 if (pathPoints.length > 150) pathPoints.shift();
                 pathPolyline.setLatLngs(pathPoints);
