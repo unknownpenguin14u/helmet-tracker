@@ -502,7 +502,7 @@
         function initMap() {
             map = L.map('map', {
                 center: [0, 0],
-                zoom: 20,                 // initial zoom for close view
+                zoom: 50,                 // <-- changed to 50 (may be beyond tile limits)
                 zoomControl: true,
                 attributionControl: true,
                 // maxZoom removed – no artificial limit
