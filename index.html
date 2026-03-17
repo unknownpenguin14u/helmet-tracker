@@ -458,6 +458,42 @@
         // ==================== CONFIGURATION ====================
         const API_BASE = "http://192.168.0.104"; // Replace with your ESP32's IP
 
+        // ==================== GOOGLE MAPS TILE LAYERS ====================
+        // Choose which map type you want by uncommenting ONE of these options
+        
+        // Google Streets (roadmap)
+        const googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Map data © Google'
+        });
+
+        // Google Satellite
+        const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Imagery © Google'
+        });
+
+        // Google Hybrid (satellite + labels)
+        const googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Imagery © Google, Map data © Google'
+        });
+
+        // Google Terrain
+        const googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: 'Terrain data © Google'
+        });
+
+        // ==================== SELECT YOUR PREFERRED MAP TYPE ====================
+        // Change this line to use a different map type:
+        // Options: googleStreets, googleSatellite, googleHybrid, googleTerrain
+        const selectedMapLayer = googleHybrid;  // <-- CHANGE THIS LINE
+
         // ==================== GLOBALS ====================
         let map, marker, pathPolyline;
         const pathPoints = [];
@@ -502,14 +538,14 @@
         function initMap() {
             map = L.map('map', {
                 center: [0, 0],
-                zoom: 50,                 // <-- changed to 50 (may be beyond tile limits)
+                zoom: 18,
                 zoomControl: true,
                 attributionControl: true,
-                // maxZoom removed – no artificial limit
             });
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; CartoDB'
-            }).addTo(map);
+            
+            // Add the selected Google Maps layer
+            selectedMapLayer.addTo(map);
+            
             L.control.scale({ imperial: false, metric: true, position: 'bottomleft' }).addTo(map);
             const helmetIcon = L.divIcon({
                 html: '<i class="fas fa-helmet-safety" style="color: #e74c3c; font-size: 32px; filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));"></i>',
@@ -635,7 +671,6 @@
             if (data.valid && data.lat !== 0 && data.lng !== 0) {
                 const latlng = [data.lat, data.lng];
                 marker.setLatLng(latlng);
-                // Center map on new position without changing zoom (keeps user's zoom level)
                 map.panTo(latlng);
                 pathPoints.push(latlng);
                 if (pathPoints.length > 150) pathPoints.shift();
