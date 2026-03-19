@@ -378,6 +378,27 @@
             border-color: var(--badge-active-border);
         }
 
+        /* Emergency notification */
+        .emergency-notice {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 10px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
         /* Responsive */
         @media (max-width: 700px) {
             body { padding: 10px; }
@@ -673,6 +694,16 @@
             const emergencyMarker = L.marker([lat, lng], { icon: emergencyIcon }).addTo(map);
             emergencyMarker.bindPopup("<b>🚨 EMERGENCY</b><br>Lat: " + lat.toFixed(6) + "<br>Lng: " + lng.toFixed(6));
             emergencyMarkers.push(emergencyMarker);
+            
+            // Show a temporary notification
+            const footer = document.querySelector('.footer');
+            const existingNotice = document.querySelector('.emergency-notice');
+            if (existingNotice) existingNotice.remove();
+            const notice = document.createElement('span');
+            notice.className = 'emergency-notice';
+            notice.innerHTML = '<i class="fas fa-exclamation-triangle"></i> EMERGENCY TRIGGERED';
+            footer.appendChild(notice);
+            setTimeout(() => notice.remove(), 5000);
         }
 
         // ==================== TRIGGER EMERGENCY (via local ESP32) ====================
@@ -722,6 +753,12 @@
 
                 updateDashboard(dashboardData);
                 lastData = dashboardData;
+
+                // If this is an emergency event, add a marker
+                if (data.emergency === true) {
+                    console.log("🚨 Emergency event detected!");
+                    addEmergencyMarker(data.lat, data.lng);
+                }
             }, (error) => {
                 console.error("Firestore error:", error);
                 document.getElementById('statusLed').className = 'status-led';
