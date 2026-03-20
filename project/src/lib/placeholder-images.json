@@ -1,0 +1,10 @@
+{
+  "placeholderImages": [
+    {
+      "id": "window-view-1",
+      "description": "A calm, serene landscape view from a window.",
+      "imageUrl": "https://images.unsplash.com/photo-1421790500381-fc9b5996f343?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjYWxtJTIwbGFuZHNjYXBlfGVufDB8fHx8MTc2Nzc5NTcwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calm landscape"
+    }
+  ]
+}
