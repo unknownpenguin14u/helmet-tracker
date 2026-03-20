@@ -123,7 +123,7 @@
             flex-wrap: wrap;
         }
 
-        .theme-toggle, .ip-save-btn {
+        .theme-toggle {
             background: var(--button-bg);
             border: 1px solid var(--border-color);
             padding: 8px 16px;
@@ -139,32 +139,9 @@
             font-size: 0.95rem;
         }
 
-        .theme-toggle:hover, .ip-save-btn:hover {
+        .theme-toggle:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-
-        .ip-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--status-bg);
-            padding: 4px 16px;
-            border-radius: 40px;
-            box-shadow: var(--button-shadow);
-        }
-        .ip-input-group label {
-            color: var(--status-text);
-            font-weight: 500;
-        }
-        .ip-input-group input {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            padding: 6px 12px;
-            border-radius: 20px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            width: 130px;
         }
 
         .connection-status {
@@ -432,7 +409,6 @@
             .title h1 { font-size: 1.6rem; }
             .map-container { height: 350px; }
             .stat-value { font-size: 1.6rem; }
-            .ip-input-group input { width: 100px; }
         }
 
         /* Loading overlay */
@@ -467,12 +443,6 @@
                 <h1>Helmet GPS Tracker</h1>
             </div>
             <div class="header-actions">
-                <!-- IP input group -->
-                <div class="ip-input-group">
-                    <label><i class="fas fa-network-wired"></i> ESP32 IP:</label>
-                    <input type="text" id="espIpInput" placeholder="192.168.x.x" value="192.168.0.104">
-                    <button class="ip-save-btn" id="saveIpBtn"><i class="fas fa-save"></i> Save</button>
-                </div>
                 <button class="theme-toggle" id="themeToggle">
                     <i class="fas fa-moon"></i> <span>Dark</span>
                 </button>
@@ -511,39 +481,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ==================== CONFIGURATION ====================
-        let apiBase = "http://10.109.156.160"; // default
-        let fetchInterval = null;
-        let lastData = null;
+        const API_BASE = "http://10.109.156.160"; // ESP32 local IP
 
         // ==================== DASHBOARD GLOBALS ====================
         let map, marker, pathPolyline;
         const pathPoints = [];
         let addedHelmetMarkers = [];
         let emergencyMarkers = [];
-
-        // ==================== LOCALSTORAGE IP HANDLING ====================
-        function loadStoredIp() {
-            const stored = localStorage.getItem('esp32_ip');
-            if (stored) {
-                apiBase = stored.startsWith('http') ? stored : 'http://' + stored;
-                document.getElementById('espIpInput').value = stored;
-            } else {
-                apiBase = 'http://10.109.156.160';
-                document.getElementById('espIpInput').value = '192.168.0.104';
-            }
-        }
-
-        function saveIp() {
-            let newIp = document.getElementById('espIpInput').value.trim();
-            if (!newIp) return;
-            // remove http:// if user added it
-            newIp = newIp.replace(/^https?:\/\//, '');
-            apiBase = 'http://' + newIp;
-            localStorage.setItem('esp32_ip', newIp);
-            console.log('IP saved:', apiBase);
-            // force immediate fetch
-            fetchLocation();
-        }
+        let lastData = null;
+        let fetchInterval = null;
 
         // ==================== THEME TOGGLE ====================
         const themeToggle = document.getElementById('themeToggle');
@@ -600,17 +546,15 @@
         // ==================== FETCH DATA FROM ESP32 ====================
         async function fetchLocation() {
             try {
-                const url = `${apiBase}/api/location`;
+                const url = `${API_BASE}/api/location`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
 
-                // Update UI for connected state
                 document.getElementById('statusLed').className = 'status-led connected';
                 document.getElementById('statusText').innerText = 'Connected';
                 document.getElementById('loadingOverlay').classList.remove('show');
 
-                // Store data for markers
                 lastData = data;
                 updateDashboard(data);
             } catch (err) {
@@ -730,7 +674,7 @@
         // ==================== TRIGGER EMERGENCY ====================
         async function triggerEmergency() {
             try {
-                const response = await fetch(`${apiBase}/api/emergency`, { method: 'POST' });
+                const response = await fetch(`${API_BASE}/api/emergency`, { method: 'POST' });
                 if (!response.ok) throw new Error(`HTTP error ${response.status}`);
                 alert('Emergency triggered successfully!');
                 if (lastData && lastData.valid) {
@@ -744,18 +688,12 @@
 
         // ==================== INIT ====================
         window.addEventListener('load', () => {
-            loadStoredIp();
             initMap();
             fetchLocation();
             if (fetchInterval) clearInterval(fetchInterval);
             fetchInterval = setInterval(fetchLocation, 1000);
-
             document.getElementById('addHelmetBtn').addEventListener('click', addHelmetMarker);
             document.getElementById('emergencyBtn').addEventListener('click', triggerEmergency);
-            document.getElementById('saveIpBtn').addEventListener('click', saveIp);
-            document.getElementById('espIpInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') saveIp();
-            });
         });
     </script>
 </body>
